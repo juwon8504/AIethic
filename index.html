@@ -1,53 +1,68 @@
 <!DOCTYPE html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>인공지능 윤리교육</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <header>
-      <nav>
-        <div class="logo">
-          <a href="#">인공지능 윤리교육</a>
-        </div>
-        <ul class="menu">
-          <li><a href="#">홈</a></li>
-          <li><a href="#">소개</a></li>
-          <li><a href="#">문의</a></li>
-          <li><a href="#" onclick="openChat()">대화</a></li>
-        </ul>
-      </nav>
-    </header>
-    <main>
-      <section class="hero">
-        <div class="hero-content">
-          <h1>인공지능 윤리교육</h1>
-          <p>
-            인공지능 기술과 관련된 윤리적 고려 사항을 배우세요.
-          </p>
-        </div>
-      </section>
-      <section class="intro">
-        <h2>인공지능 윤리교육 소개</h2>
-        <p>
-          인공지능 윤리교육은 인공지능 기술과 관련된 윤리적 고려 사항을 배울 수 있는 플랫폼입니다. 인공지능이 우리 일상생활에 점점 더 통합됨에 따라, 이러한 기술의 잠재적 윤리적 영향을 고려하는 것이 중요합니다. 인공지능 윤리교육은 편평한 이슈, 프라이버시, 책임성 등의 주제를 포함한 종합적인 소개를 제공합니다.
-        </p>
-      </section>
-      <section class="features">
-        <h2>우리가 제공하는 것</h2>
-        <div class="feature">
-          <div class="feature-icon">
-            <img
-              src="https://cdn4.iconfinder.com/data/icons/education-429/64/robot-smart-ai-artificial-intelligence-512.png"
-              alt="인공지능 아이콘"
-            />
-          </div>
-          <h3>인공지능 기술 소개</h3>
-          <p>
-            지도학습, 비지도학습, 분류 및 회귀 등의 기초적인 기계학습 개념을 배우세요.
-          </p>
-        </div>
-        <div class="feature">
+<html>
+<head>
+    <title>버튼 카운터</title>
+</head>
+<body>
+    <button id="countButton">버튼 누르기</button>
+    <p id="message"></p>
+
+    <script>
+        // 쿠키를 사용하여 중복 클릭 방지
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        // 초기 카운터 값을 쿠키에서 가져옴
+        var initialCount = parseInt(getCookie("counterValue")) || 0;
+
+        // 버튼 클릭 시 처리
+        document.getElementById("countButton").addEventListener("click", function () {
+            if ("geolocation" in navigator) {
+                // 사용자의 현재 위치 정보 가져오기
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var userLat = position.coords.latitude;
+                    var userLng = position.coords.longitude;
+
+                    // 기준 좌표와의 거리 계산 (대략적인 계산법)
+                    var distance = Math.sqrt(Math.pow(userLat - 37.1664258, 2) + Math.pow(userLng - 127.1061700, 2));
+
+                    if (distance <= 0.018) { // 2키로 미터 이내 (0.018도 이내)
+                        var currentCount = parseInt(getCookie("counterValue")) || 0;
+                        if (currentCount === 0) {
+                            currentCount++;
+                            document.getElementById("message").textContent = "참여하였습니다. 감사합니다.";
+                            setCookie("counterValue", currentCount, 1);
+                        } else {
+                            document.getElementById("message").textContent = "이미 참여하였습니다.";
+                        }
+                    } else {
+                        document.getElementById("message").textContent = "해당 지역이 아닙니다.";
+                    }
+                });
+            } else {
+                document.getElementById("message").textContent = "이 브라우저에서는 위치 정보를 지원하지 않습니다.";
+            }
+        });
+    </script>
+</body>
+</html>
