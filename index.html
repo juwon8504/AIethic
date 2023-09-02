@@ -57,6 +57,7 @@
         <div id="counterText">위치기반 카운터</div>
         <div id="counterValue">00000</div>
         <button id="countButton">클릭</button>
+        <p id="message"></p>
     </div>
 
     <script>
@@ -64,16 +65,35 @@
         var clickCount = localStorage.getItem("clickCount") || 0;
 
         // 화면에 현재 클릭 횟수 표시
-        document.getElementById("counterValue").textContent = clickCount;
+        document.getElementById("counterValue").textContent = String(clickCount).padStart(5, '0');
 
         // 버튼 클릭 시 처리
         document.getElementById("countButton").addEventListener("click", function () {
-            // 클릭 횟수 증가
-            clickCount++;
-            // 로컬 스토리지에 클릭 횟수 저장
-            localStorage.setItem("clickCount", clickCount);
-            // 화면에 업데이트된 클릭 횟수 표시
-            document.getElementById("counterValue").textContent = String(clickCount).padStart(5, '0');
+            if ("geolocation" in navigator) {
+                // 사용자의 현재 위치 정보 가져오기
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var userLat = position.coords.latitude;
+                    var userLng = position.coords.longitude;
+
+                    // 기준 좌표와의 거리 계산 (대략적인 계산법)
+                    var distance = Math.sqrt(Math.pow(userLat - 37.1664258, 2) + Math.pow(userLng - 127.1061700, 2));
+
+                    if (distance <= 0.018) { // 2키로 미터 이내 (0.018도 이내)
+                        if (clickCount === 0) {
+                            clickCount++;
+                            localStorage.setItem("clickCount", clickCount);
+                            document.getElementById("counterValue").textContent = String(clickCount).padStart(5, '0');
+                            document.getElementById("message").textContent = "참여하였습니다. 감사합니다.";
+                        } else {
+                            document.getElementById("message").textContent = "이미 참여하였습니다.";
+                        }
+                    } else {
+                        document.getElementById("message").textContent = "해당 지역이 아닙니다.";
+                    }
+                });
+            } else {
+                document.getElementById("message").textContent = "이 브라우저에서는 위치 정보를 지원하지 않습니다.";
+            }
         });
     </script>
 </body>
