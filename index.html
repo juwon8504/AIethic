@@ -1,67 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>버튼 카운터</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #counterContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        #counterText {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #counterValue {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        #countButton {
+            background-color: #000;
+            color: #fff;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        /* 버튼 안의 텍스트 디자인 */
+        #countButton::before {
+            content: "•";
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
-    <button id="countButton">버튼 누르기</button>
-    <p id="message"></p>
+    <div id="counterContainer">
+        <div id="counterText">위치기반 카운터</div>
+        <div id="counterValue">00000</div>
+        <button id="countButton">클릭</button>
+    </div>
 
     <script>
-        // 쿠키를 사용하여 중복 클릭 방지
-        function setCookie(cname, cvalue, exdays) {
-            var d = new Date();
-            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-            var expires = "expires=" + d.toUTCString();
-            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-        }
+        // 클릭 횟수를 로컬 스토리지에서 불러옴
+        var clickCount = localStorage.getItem("clickCount") || 0;
 
-        function getCookie(cname) {
-            var name = cname + "=";
-            var decodedCookie = decodeURIComponent(document.cookie);
-            var ca = decodedCookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-
-        // 초기 카운터 값을 쿠키에서 가져옴
-        var initialCount = parseInt(getCookie("counterValue")) || 0;
+        // 화면에 현재 클릭 횟수 표시
+        document.getElementById("counterValue").textContent = clickCount;
 
         // 버튼 클릭 시 처리
         document.getElementById("countButton").addEventListener("click", function () {
-            if ("geolocation" in navigator) {
-                // 사용자의 현재 위치 정보 가져오기
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    var userLat = position.coords.latitude;
-                    var userLng = position.coords.longitude;
-
-                    // 기준 좌표와의 거리 계산 (대략적인 계산법)
-                    var distance = Math.sqrt(Math.pow(userLat - 37.1664258, 2) + Math.pow(userLng - 127.1061700, 2));
-
-                    if (distance <= 0.018) { // 2키로 미터 이내 (0.018도 이내)
-                        var currentCount = parseInt(getCookie("counterValue")) || 0;
-                        if (currentCount === 0) {
-                            currentCount++;
-                            document.getElementById("message").textContent = "참여하였습니다. 감사합니다.";
-                            setCookie("counterValue", currentCount, 1);
-                        } else {
-                            document.getElementById("message").textContent = "이미 참여하였습니다.";
-                        }
-                    } else {
-                        document.getElementById("message").textContent = "해당 지역이 아닙니다.";
-                    }
-                });
-            } else {
-                document.getElementById("message").textContent = "이 브라우저에서는 위치 정보를 지원하지 않습니다.";
-            }
+            // 클릭 횟수 증가
+            clickCount++;
+            // 로컬 스토리지에 클릭 횟수 저장
+            localStorage.setItem("clickCount", clickCount);
+            // 화면에 업데이트된 클릭 횟수 표시
+            document.getElementById("counterValue").textContent = String(clickCount).padStart(5, '0');
         });
     </script>
 </body>
